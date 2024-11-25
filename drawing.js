@@ -16,10 +16,14 @@ const version=document.getElementById('version');
 let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>undefined));
 
 let str="";
+let process=0;
 async function getTemps(){
   state.innerText=`状態: 準備中。アップロードはちょっと待ってね...`
+  state.innerText+=` ${process}$`
   for(let i=1;i<=10;i++){
     const response=await fetch(`template${i}`);
+    process+=10;
+    state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%`
     str+=await response.text();
   }
 }
