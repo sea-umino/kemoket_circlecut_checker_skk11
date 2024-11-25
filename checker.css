@@ -1,0 +1,34 @@
+body{
+  background-color: aqua;
+}
+
+.errormessage{
+  color: red;
+  font-weight: bold;
+}
+
+.container{
+  display: flex;
+  width: "parent";
+  margin: 20px;
+  background-color: white;  
+}
+
+.circlecut{
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  border-right:1px solid #ddd;
+}
+
+.circlecut canvas{
+  width: 978px;
+  height: 411px;
+}
+
+.auto-checklist{
+  flex: 1;
+  padding: 20px;
+}

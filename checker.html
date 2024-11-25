@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content = "width=device-width, initial-scale=1.0">
+  <title>サークルカットチェッカー</title>
+  <link rel="stylesheet" href="./checker.css">
+</head>
+<body>
+  <h1>けもケットサークルカット自動チェックツール</h1>
+  <b>for 新春けもケット11<br></b>
+  <b class="errormessage" id="error"></b>
+  <input type="file" id="imageInput" accept="image/*"/>
+  <div class="container">
+    <div class="circlecut">
+      <canvas name="canvas" id="canvas"></canvas>
+    </div>
+    <div class="auto-checklist">
+      <b class="imagesize" id="imagesize">画像サイズ: <br></b>
+      <b class="spacenumber" id="spacenumber">スペースナンバー枠: <br></b>
+      <b class="circlecutedge" id="circlecutedge">サークルカット枠: <br></b>
+      <b class="colormode" id="colormode">カラーモード: <br></b>
+      <b class="seiheki" id="seiheki">メインとする趣向: <br></b>
+      <b class="genre" id="genre">配置希望ジャンル: <br></b>
+      <b class="version" id="version">テンプレートのバージョン: <br></b>
+    </div>
+  </div>
+  <p id="test">↓ここに画素データが出るよ↓<br></p>
+
+  <script src="./drawing.js"></script>
+</body>
+</html>
