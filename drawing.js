@@ -6,6 +6,7 @@ const canvas = document.getElementById('canvas');
 canvas.width=correctWidth;
 canvas.height=correctHeight;
 const ctx = canvas.getContext('2d');
+const state=document.getElementById('status');
 const imagesize=document.getElementById('imagesize');
 const spacenumber=document.getElementById('spacenumber');
 const circlecutedge=document.getElementById('circlecutedge');
@@ -17,6 +18,7 @@ let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_
 
 let str="";
 async function getTemps(){
+  state.innerText=`状態: 準備中。アップロードはちょっと待ってね...`
   for(let i=1;i<=10;i++){
     const response=await fetch(`template${i}`);
     str+=await response.text();
@@ -28,6 +30,8 @@ getTemps().then(()=>{
     const p=JSON.parse(pixel);
     template[Math.floor(id/canvas.width)][id%canvas.width]=new pixel(p.r,p.g,p.b,p.a);
   })
+}).then(()=>{
+  state.innerText=`状態: 準備完了！サークルカットをアップロードしてね`
 });
 
 document.getElementById('imageInput').addEventListener('change', async event=>{
