@@ -21,7 +21,7 @@ async function getTemps(){
   state.innerText=`状態: 準備中。アップロードはちょっと待ってね...`
   state.innerText+=` ${process}%\n`
   for(let i=1;i<=10;i++){
-    const response=await fetch(`template${i}`);
+    const response=await fetch(`./template${i}`);
     process+=10;
     state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%\n`
     str+=await response.text();
