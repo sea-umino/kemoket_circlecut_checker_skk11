@@ -14,21 +14,21 @@ const genre=document.getElementById('genre');
 const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>undefined));
-fetch("./template.txt")
-  .then(response=>{
-    if(!response.ok){
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.text;
+
+let str="";
+async function getTemps(){
+  for(let i=1;i<=10;i++){
+    const response=await fetch(`template${i}`);
+    str+=await response.text();
+  }
+}
+
+getTemps().then(()=>{
+  str.split("#").map((pixel, id)=>{
+    const p=JSON.parse(pixel);
+    template[Math.floor(id/canvas.width)][id%canvas.width]=new pixel(p.r,p.g,p.b,p.a);
   })
-  .then(text=>{
-    text.split("#").map((jsonp, index)=>{
-      const p=JSON.parse(jsonp);
-      template[Math.floor(index/canvas.width)][index%canvas.width]=new pixel(p.r,p.g,p.b,p.a);
-    })
-  }).catch(err=>{
-    console.error(`Error:`,err);
-  })
+});
 
 document.getElementById('imageInput').addEventListener('change', async event=>{
   errorMessage.textContent='';
