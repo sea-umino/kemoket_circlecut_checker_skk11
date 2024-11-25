@@ -2,7 +2,6 @@ const [correctWidth,correctHeight]=[3260,1370];
 
 const errorMessage=document.getElementById('error');
 const canvas = document.getElementById('canvas');
-//const dpr=window.devicePixelRatio || 1;
 canvas.width=correctWidth;
 canvas.height=correctHeight;
 const ctx = canvas.getContext('2d');
@@ -203,28 +202,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         errorMessage.innerText+=`[ERROR]使用されているテンプレートが新春けもケット11のものではありません。または、右下の開催回番号枠内が汚れている可能性があります\n`
         version.innerText=`テンプレートバージョン: Unknown\n`
         version.style.color="red";
-      }
-
-      /*
-      ////以下、デバッグ用////
-      const test = document.getElementById('test');
-      const anal = {};
-      for(let h=0;h<canvas.height;h++){
-        for(let w=0;w<canvas.width;w++){
-          const pstr=JSON.stringify(pixels[h][w]);
-          if(pstr in anal){
-            anal[pstr]++;
-          }
-          else{
-            anal[pstr]=1;
-          }
-        }
-      }
-      const debug=(x,y)=>{
-        test.innerText+=`x=${x} y=${y} ${pixels[y][x].strParamater()}\n`
-      }
-        */
-      
+      }      
     }
     //URLを介してimageオブジェクトにアップロードした画像を渡す
     image.src=reader.result;
