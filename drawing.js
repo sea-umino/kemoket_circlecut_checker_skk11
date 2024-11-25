@@ -19,11 +19,11 @@ let str="";
 let process=0;
 async function getTemps(){
   state.innerText=`状態: 準備中。アップロードはちょっと待ってね...`
-  state.innerText+=` ${process}$`
+  state.innerText+=` ${process}%\n`
   for(let i=1;i<=10;i++){
     const response=await fetch(`template${i}`);
     process+=10;
-    state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%`
+    state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%\n`
     str+=await response.text();
   }
 }
@@ -206,7 +206,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         errorMessage.innerText+=`[ERROR]使用されているテンプレートが新春けもケット11のものではありません。または、右下の開催回番号枠内が汚れている可能性があります\n`
         version.innerText=`テンプレートバージョン: Unknown\n`
         version.style.color="red";
-      }      
+      }
     }
     //URLを介してimageオブジェクトにアップロードした画像を渡す
     image.src=reader.result;
