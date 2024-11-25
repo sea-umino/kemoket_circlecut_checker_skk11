@@ -13,6 +13,7 @@ const colormode=document.getElementById('colormode');
 const genre=document.getElementById('genre');
 const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
+const test=document.getElementById('test');
 let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>undefined));
 
 let temps=Array(10).fill().map(_=>"");
@@ -23,7 +24,7 @@ async function getTemps(){
   state.innerText+=` ${process}%\n`;
   const promises=[];
   for(let i=1;i<=10;i++){
-    promises.push(fetch(`./template${i}.txt`).then(response=>{
+    promises.push(fetch(`./template${i}`).then(response=>{
       process+=10;
       state.innerText=`状態: データをダウンロード中。アップロードはちょっと待ってね... ${process}%\n`;
       return response.text()}));    
@@ -35,6 +36,7 @@ async function getTemps(){
   process=0;
   str.split("#").map((pixel, id, arr)=>{
     const p=JSON.parse(pixel);
+    test.innerText=`arr.length=${arr.length} id=${id} r=${p.r} g=${p.g} b=${p.b} a=${p.a}`;
     template[Math.floor(id/canvas.width)][id%canvas.width]=new pixel(p.r,p.g,p.b,p.a);
     process=(id+1)/arr.length;
     state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね... ${process.toFixed(2)}%\n`
