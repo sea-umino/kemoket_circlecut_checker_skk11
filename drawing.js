@@ -23,7 +23,7 @@ async function getTemps(){
   state.innerText+=` ${process}%\n`;
   const promises=[];
   for(let i=1;i<=10;i++){
-    promises.push(fetch(`./template${i}`).then(response=>{
+    promises.push(fetch(`./template${i}.txt`).then(response=>{
       process+=10;
       state.innerText=`状態: データをダウンロード中。アップロードはちょっと待ってね... ${process}%\n`;
       return response.text()}));    
