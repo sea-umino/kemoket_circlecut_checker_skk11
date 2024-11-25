@@ -35,6 +35,7 @@ async function getTemps(){
   state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね...\n`;
   process=0;
   str.split("#").map((pixel, id, arr)=>{
+    test.innerText=`${p}`;
     const p=JSON.parse(pixel);
     test.innerText=`arr.length=${arr.length} id=${id} r=${p.r} g=${p.g} b=${p.b} a=${p.a}`;
     template[Math.floor(id/canvas.width)][id%canvas.width]=new pixel(p.r,p.g,p.b,p.a);
