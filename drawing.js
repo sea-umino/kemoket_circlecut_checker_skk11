@@ -15,27 +15,35 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>undefined));
 
+let temps=Array(10).fill().map(_=>"");
 let str="";
 let process=0;
 async function getTemps(){
-  state.innerText=`状態: 準備中。アップロードはちょっと待ってね...`
-  state.innerText+=` ${process}%\n`
+  state.innerText=`状態: 準備中。アップロードはちょっと待ってね...`;
+  state.innerText+=` ${process}%\n`;
+  const promises=[];
   for(let i=1;i<=10;i++){
-    const response=await fetch(`./template${i}`);
-    process+=10;
-    state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%\n`
-    str+=await response.text();
-  }
+    promises.push(fetch(`./template${i}`).then(response=>{
+      process+=10;
+      state.innerText=`状態: データをダウンロード中。アップロードはちょっと待ってね... ${process}%\n`;
+      return response.text()}));    
+  };
+
+  const results= await Promise.all(promises);
+  str=results.join("");
+  state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね...\n`;
+  process=0;
+  str.split("#").map((pixel, id, arr)=>{
+    const p=JSON.parse(pixel);
+    template[Math.floor(id/canvas.width)][id%canvas.width]=new pixel(p.r,p.g,p.b,p.a);
+    process=(id+1)/arr.length;
+    state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね... ${process.toFixed(2)}%\n`
+  });
 }
 
 getTemps().then(()=>{
-  str.split("#").map((pixel, id)=>{
-    const p=JSON.parse(pixel);
-    template[Math.floor(id/canvas.width)][id%canvas.width]=new pixel(p.r,p.g,p.b,p.a);
-  })
-}).then(()=>{
-  state.innerText=`状態: 準備完了！サークルカットをアップロードしてね`
-});
+  state.innerText=`状態: 準備完了! サークルカットをアップロードしてね!`;
+})
 
 document.getElementById('imageInput').addEventListener('change', async event=>{
   errorMessage.textContent='';
