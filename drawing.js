@@ -34,7 +34,7 @@ class pixel{
 let template=[];
 let process=0;
 async function getTemps(){
-  state.innerText=`状態: 準備中。アップロードはちょっと待ってね...`;
+  state.innerText=`状態: 準備中。アップロードはちょっと待ってね...\n`;
   state.innerText+=` ${process}%\n`;
 
   for(let i=0;i<10;i++){
@@ -46,7 +46,6 @@ async function getTemps(){
       let tmp=[];
       while(tmp.length<canvas.width){
         const p=JSON.parse(ps[cnt]);
-        test.innerText=`i=${i} j=${j} cnt=${cnt} p=${JSON.stringify(p)}`;
         cnt++;
         tmp.push(new pixel(p.r, p.g, p.b, p.a));
       }
@@ -55,15 +54,16 @@ async function getTemps(){
     process+=10;
     state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%\n`;
   }
-  state.innerText=`状態: 準備中。読み込みは終わったよ。アップロードはちょっと待ってね...`
+  state.innerText=`状態: 準備中。読み込みは終わったよ。アップロードはちょっと待ってね...\n`
 }
 
 getTemps().then(()=>{
-  state.innerText=`状態: 準備完了! サークルカットをアップロードしてね!`;
+  state.innerText=`状態: 準備完了! サークルカットをアップロードしてね!\n`;
 })
 
 document.getElementById('imageInput').addEventListener('change', async event=>{
   errorMessage.textContent='';
+  state.innerText=`状態: 解析中。結果が出るまでちょっと待ってね...`
   const file = event.target.files[0];
   if(!file) return;
   //pngかどうか確認
@@ -126,13 +126,13 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
       }
       else{
         spacenumber.innerText="スペースナンバー枠: OK\n";
-        spacenumber.style.color="black";
+        spacenumber.style.color="green";
       }
 
       //サクカの黒枠チェック
       const {ngList:circlecutEdgeNgList, bimyouList:circlecutEdgeBimyouList}=circlecutEdgeCheck(pixels);
       if(circlecutEdgeNgList.length>0){
-        circlecutedge.innerText="サークルカット枠: 侵食の可能性あり"
+        circlecutedge.innerText="サークルカット枠: 侵食の可能性あり\n"
         circlecutedge.style.color="red";
         errorMessage.innerText+=`[ERROR] サークルカットの黒枠上までイラストが侵食している可能性があります\n座標:`
         for(let i=0;i<Math.min(10, circlecutEdgeNgList.length);i++){
@@ -145,8 +145,8 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
       }
       else if(circlecutEdgeBimyouList.length>0){
         circlecutedge.style.color="orange";
-        circlecutedge.innerText="サークルカット枠: 侵食の可能性あり"
-        errorMessage.innerText+=`[CAUTION]サークルカットの黒枠の描画領域に摂食している部分に侵食の可能性があります。ただし、使用ドローイングソフトウェアからの出力時に生じた色ブレの可能性もあります\n座標:`;
+        circlecutedge.innerText="サークルカット枠: 侵食の可能性あり\n"
+        errorMessage.innerText+=`[CAUTION]サークルカットの黒枠の描画領域に接触している部分に侵食の可能性があります。ただし、使用ドローイングソフトウェアからの出力時に生じた色ブレの可能性もあります\n座標:`;
         for(let i=0;i<Math.min(10, circlecutEdgeBimyouList.length);i++){
           errorMessage.innerText+=`[${circlecutEdgeBimyouList[i][1]}, ${circlecutEdgeBimyouList[i][0]}]`;
         }
@@ -157,30 +157,30 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
       }
       else{
         circlecutedge.innerText="サークルカット枠: OK\n";
-        circlecutedge.style.color="black";
+        circlecutedge.style.color="green";
       }
 
       //カラーモードチェック
       const colorMode=monochromeCheck(pixels);
       if(colorMode=="mono"){
         errorMessage.innerText+=`[ERROR]書き出し時にモノクロ二階調が指定されている可能性があります。サークルカットはRGBまたはグレースケールで出力してください\n`;
-        colormode.innerText="カラーモード: モノクロ二階調";
+        colormode.innerText="カラーモード: モノクロ二階調\n";
         colormode.style.color="red";
       }
       else if(colorMode=="gray"){
-        colormode.innerText="カラーモード: グレースケール";
-        colormode.style.color="black";
+        colormode.innerText="カラーモード: グレースケール\n";
+        colormode.style.color="green";
       }
       else if(colorMode=="full"){
-        colormode.innerText="カラーモード: フルカラー"
-        colormode.style.color="black";
+        colormode.innerText="カラーモード: フルカラー\n"
+        colormode.style.color="green";
       }
 
       //趣向チェック
       const checked=seihekiCheck(pixels);
       if(checked.length==0){
         errorMessage.innerText+=`[ERROR]"メインとする趣向"欄のチェックがありません\n`
-        seiheki.innerText=`メインとする趣向: empty`;
+        seiheki.innerText=`メインとする趣向: empty\n`;
         seiheki.style.color="red";
       }
       else if(checked.length>1){
@@ -190,7 +190,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
       }
       else{
         seiheki.innerText=`メインとする趣向: ${checked[0]}\n`;
-        seiheki.style.color="black";
+        seiheki.style.color="green";
       }
 
       //配置希望ジャンル
@@ -218,20 +218,30 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         }
         else{
           genre.innerText=`配置希望ジャンル: ${genreChecked[0]}\n`;
-          genre.style.color="black";
+          genre.style.color="green";
         }
       }
 
       //バージョンチェック
       if(versionCheck(pixels)){
         version.innerText=`テンプレートバージョン: 新春けもケット11\n`;
-        version.style.color="black";
+        version.style.color="green";
       }
       else{
         errorMessage.innerText+=`[ERROR]使用されているテンプレートが新春けもケット11のものではありません。または、右下の開催回番号枠内が汚れている可能性があります\n`
         version.innerText=`テンプレートバージョン: Unknown\n`
         version.style.color="red";
       }
+
+      state.innerText=`状態: 解析完了!\n`
+
+      test.innerHTML=`
+        <b>◯その他のチェック項目</b><br><br>
+        ・"配置希望ジャンル"や"メインとする趣向"の欄のチェックは<span style="color:red;">塗りつぶし必須</span>>です。<b>レ点のチェックは不備になります</b><br><br>
+        ・<b>サークル名</b>をサークルカットの右側の短冊に記入していますか？<br><br>
+        ・アップロードされたサークルカットのファイル名は<span style="color: red;">"${file.name}"</span>です。サークルカットの名前は<span style="color:red;">『サークル名.jpg/png/bmp』</span>になっていますか？<br><br>
+        ・「<b>ファイル名中のサークル名</b>」「<b>サークルの短冊に記載したサークル名</b>」「<b>申し込みフォームに入力するサークル名</b>」は<span style="color:red">原則完全一致している必要があります</span>。<b>日本語のサークル名をアルファベット表記に変換</b>していたり、<b>ひらがなとカタカナを間違えていたり</b>しませんか？　<b>漢字の字体（新字体or旧字体、異体字等）</b>は一致していますか？　ただし、<span style="color:red";>ファイル名に使用できない文字が含まれる場合</span>は、ファイル名に<b>ハイフン（-）</b>や<b>アンダーバー（_）</b>の使用、また<b>その文字の省略</b>が認められます。また、<span style="color:red">機種依存文字はサークル名に使用できません</span>。<br><br>
+      `
 
       /*
       ////以下、デバッグ用////
@@ -262,7 +272,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
 })
 
 function imageSizeCheck(image){
-  imagesize.style.color='black';
+  imagesize.style.color='green';
   imagesize.innerText=`画像サイズ: ${image.width}px × ${image.height}px\n`;
   if(image.width!=correctWidth || image.height!=correctHeight){
     errorMessage.textContent=`[ERROR] アップロードされた画像のサイズが間違っています。正しいサイズは ${correctWidth}px × ${correctHeight}px です`;
