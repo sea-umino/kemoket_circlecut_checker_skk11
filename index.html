@@ -9,11 +9,14 @@
 <body>
   <h1>けもケットサークルカット自動チェックツール</h1>
   <b class="when" id="when">for 新春けもケット11 </b>
+  <div style="margin:20px; border: dashed white; padding:10px; background-color: rgba(240, 248, 255, 0.719);">
   新春けもケット11のサークルカットを解析し、機械的に判別できる部分について不備があるかどうかを確認します。<br>
   1pxの汚れやほんの少しの色変化を検出するのには長けていますが、文字の識別機能は実装していないため、あくまで参考程度に留めておいてください。<br>
   <b>最終的にはご自身で不備の有無を確認してください</b>
   また、仕様上現在<b>.png</b>にのみ対応しています。画像圧縮方法の差異により想定外の色変化が生じるため、.jpgや.bmpでアップロードすると<b>不備が誤検出される</b>可能性があります。また、<b>.pngであったとしても使用ソフトウェアやパソコンの仕様により不備が誤検出される</b>可能性があります。<br>
-  因みに開発者はクリスタEXのグレースケール/RGB出力でテストしています。<br>
+  因みに開発者はクリスタEXのグレースケール/RGB出力でテストしています。
+  </div>
+  <br>
   <b class="status" id="status">状態:</b>
   <b class="errormessage" id="error"></b>
   <input type="file" id="imageInput" accept="image/*"/>
@@ -21,7 +24,7 @@
     <div class="circlecut">
       <canvas name="canvas" id="canvas"></canvas>
     </div>
-    <div class="auto-checklist">
+    <div class="auto-checklist" >
       <b class="imagesize" id="imagesize">画像サイズ: <br></b>
       <b class="spacenumber" id="spacenumber">スペースナンバー枠: <br></b>
       <b class="circlecutedge" id="circlecutedge">サークルカット枠: <br></b>
@@ -31,7 +34,7 @@
       <b class="version" id="version">テンプレートのバージョン: <br></b>
     </div>
   </div>
-  <div id="test"></div>
+  <div id="test" style="margin:20px; padding:10px; background-color:rgba(240, 248, 255, 0.719)"></div>
 
   <script src="./drawing.js"></script>
 </body>
