@@ -17,7 +17,7 @@ const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
 let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>undefined));
-when.innerText+="ver.0.0.2\n";
+when.innerText+="ver.0.0.3\n";
 class pixel{
   r;g;b;a;
   constructor(r,g,b,a){
@@ -32,37 +32,23 @@ class pixel{
   };
 }
 
-let temps=Array(10).fill().map(_=>"");
-let str="";
 let process=0;
 async function getTemps(){
   state.innerText=`状態: 準備中。アップロードはちょっと待ってね...`;
   state.innerText+=` ${process}%\n`;
-  const promises=[];
-  for(let i=1;i<=10;i++){
-    promises.push(fetch(`template${i}.txt`).then(response=>response.text()).then(text=>{
-      process+=10;
-      state.innerText=`状態: データをダウンロード中。アップロードはちょっと待ってね... ${process}%\n`;
-      test.innerText+=`Complete: template${i}.txt\n`
-      return text}));    
-  };
 
-  const results= await Promise.all(promises);
   for(let i=0;i<10;i++){
-    state.innerText+=`results[${i}]:${results[i].length}\n`
+    const response=await fetch(`template${i+1}.txt`);
+    const text=await response.text();
+    const ps=text.split("#");
+    for(let j=0;j<ps.length;j++){
+      p=JSON.parse(ps[j]);
+      template[(correctHeight/10)*i + Math.min(j/correctWidth)][j%correctWidth]=new pixel(p.r,p.g,p.b,p.a);
+    }
+    process+=10;
+    state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%\n`;
   }
-  str=results.join("");
-  state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね...\n`;
-  process=0;
-  test.innerText+=`str.lenght=${str.length}\n`;
-  str.split("#").map((_pixel, id, arr)=>{
-    test.innerText+=`${id}:${_pixel} \n`;
-    const p=JSON.parse(_pixel);
-    test.innerText+=`arr.length=${arr.length} id=${id} r=${p.r} g=${p.g} b=${p.b} a=${p.a}`;
-    template[Math.floor(id/canvas.width)][id%canvas.width]=new pixel(p.r,p.g,p.b,p.a);
-    process=(id+1)/arr.length;
-    state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね... ${process.toFixed(2)}%\n`
-  });
+  state.innerText=`状態: 準備中。読み込みは終わったよ。アップロードはちょっと待ってね...`
 }
 
 getTemps().then(()=>{
