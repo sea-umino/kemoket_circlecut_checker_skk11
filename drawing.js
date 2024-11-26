@@ -16,7 +16,7 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-when.innerText+="ver.0.0.8\n";
+when.innerText+=" ver.0.0.9\n";
 class pixel{
   r;g;b;a;
   constructor(r=0,g=0,b=0,a=0){
