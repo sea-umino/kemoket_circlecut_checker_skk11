@@ -16,7 +16,6 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>new pixel()));
 when.innerText+="ver.0.0.3\n";
 class pixel{
   r;g;b;a;
@@ -26,11 +25,13 @@ class pixel{
     this.b=b;
     this.a=a;
   }
-
   strParamater(){
     return `RGBA[${this.r} ${this.g} ${this.b} ${this.a}]`
   };
 }
+
+
+let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>new pixel()));
 
 let process=0;
 async function getTemps(){
