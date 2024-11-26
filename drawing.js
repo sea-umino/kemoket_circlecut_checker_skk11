@@ -237,10 +237,12 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
 
       test.innerHTML=`
         <b>◯その他のチェック項目</b><br><br>
-        ・"配置希望ジャンル"や"メインとする趣向"の欄のチェックは<b><span style="color:red;">塗りつぶし必須</span>></b>です。<b>レ点のチェックは不備になります</b><br><br>
+        ・"配置希望ジャンル"や"メインとする趣向"の欄のチェックは<span style="color:red; font-weight:bold;">塗りつぶし必須</span></b>です。<b>レ点のチェックは不備になります</b><br><br>
         ・<b>サークル名</b>をサークルカットの右側の短冊に記入していますか？<br><br>
-        ・アップロードされたサークルカットのファイル名は<span style="color: red;">"${file.name}"</span>です。サークルカットの名前は<span style="color:red;">『サークル名.jpg/png/bmp』</span>になっていますか？<br><br>
-        ・「<b>ファイル名中のサークル名</b>」「<b>サークルの短冊に記載したサークル名</b>」「<b>申し込みフォームに入力するサークル名</b>」は<span style="color:red">原則完全一致している必要があります</span>。<b>日本語のサークル名をアルファベット表記に変換</b>していたり、<b>ひらがなとカタカナを間違えていたり</b>しませんか？　<b>漢字の字体（新字体or旧字体、異体字等）</b>は一致していますか？　ただし、<span style="color:red";>ファイル名に使用できない文字が含まれる場合</span>は、ファイル名に<b>ハイフン（-）</b>や<b>アンダーバー（_）</b>の使用、また<b>その文字の省略</b>が認められます。また、<span style="color:red">機種依存文字はサークル名に使用できません</span>。<br><br>
+        ・<b>サークルカット中</b>に<b>サークル名</b>を記載していますか？　<b>読みやすい文字</b>で記載してありますか？　<span style="color: red; font-weight:bold;">かすれ・薄い・小さい</span>等<span style="color: red; font-weight:bold;">サークル名が読めないと判断された場合は不備になる</span>可能性があります。<br><br>
+        ・サークルカットのイラストに<span style="color: red; font-weight:bold;">露骨な性描写表現や残虐性のある暴力表現</span>を含めることはできません。<br><br>
+        ・アップロードされたサークルカットのファイル名は<span style="color: red; font-weight:bold;">"${file.name}"</span>です。サークルカットの名前は<span style="color:red; font-weight:bold;">『サークル名.jpg/png/bmp』</span>になっていますか？<br><br>
+        ・「<b>ファイル名中のサークル名</b>」「<b>サークルの短冊に記載したサークル名</b>」「<b>申し込みフォームに入力するサークル名</b>」は<span style="color:red; font-weight:bold;">原則完全一致している必要があります</span>。<b>日本語のサークル名をアルファベット表記に変換</b>していたり、<b>ひらがなとカタカナを間違えていたり</b>しませんか？　<b>漢字の字体（新字体or旧字体、異体字等）</b>は一致していますか？　ただし、<span style="color:red; font-weight:bold;">ファイル名に使用できない文字が含まれる場合</span>は、ファイル名に<b>ハイフン（-）</b>や<b>アンダーバー（_）</b>の使用、また<b>その文字の省略</b>が認められます。また、<span style="color:red; font-weight:bold;">機種依存文字はサークル名に使用できません</span>。<br><br>
       `
 
       /*
