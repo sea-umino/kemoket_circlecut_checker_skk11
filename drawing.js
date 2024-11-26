@@ -16,7 +16,7 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-when.innerText+="ver.0.0.6\n";
+when.innerText+="ver.0.0.7\n";
 class pixel{
   r;g;b;a;
   constructor(r=0,g=0,b=0,a=0){
@@ -31,8 +31,7 @@ class pixel{
 }
 
 
-let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>new pixel()));
-
+let template=[];
 let process=0;
 async function getTemps(){
   state.innerText=`状態: 準備中。アップロードはちょっと待ってね...`;
@@ -42,10 +41,16 @@ async function getTemps(){
     const response=await fetch(`template${i+1}.txt`);
     const text=await response.text();
     const ps=text.split("#");
-    for(let j=0;j<ps.length;j++){
-      p=JSON.parse(ps[j]);
-      test.innerText=`i=${i} j=${j} p=${JSON.stringify(p)}`;
-      template[(correctHeight/10)*i + Math.min(j/correctWidth)][j%correctWidth]=new pixel(r=p.r, g=p.g, b=p.b, a=p.a);
+    let cnt=0;
+    for(let j=0;j<canvas.height/10;j++){
+      let tmp=[];
+      while(tmp.length<canvas.width){
+        const p=JSON.parse(ps[cnt]);
+        test.innerText=`i=${i} j=${j} cnt=${cnt} p=${JSON.stringify(p)}`;
+        cnt++;
+        tmp.push(new pixel(p.r, p.g, p.b, p.a));
+      }
+      template.push(tmp);
     }
     process+=10;
     state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%\n`;
