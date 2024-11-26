@@ -17,6 +17,20 @@ const version=document.getElementById('version');
 const test=document.getElementById('test');
 let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>undefined));
 
+class pixel{
+  r;g;b;a;
+  constructor(r,g,b,a){
+    this.r=r;
+    this.g=g;
+    this.b=b;
+    this.a=a;
+  }
+
+  strParamater(){
+    return `RGBA[${this.r} ${this.g} ${this.b} ${this.a}]`
+  };
+}
+
 let temps=Array(10).fill().map(_=>"");
 let str="";
 let process=0;
@@ -266,19 +280,6 @@ function imageSizeCheck(image){
   }
 }
 
-class pixel{
-  r;g;b;a;
-  constructor(r,g,b,a){
-    this.r=r;
-    this.g=g;
-    this.b=b;
-    this.a=a;
-  }
-
-  strParamater(){
-    return `RGBA[${this.r} ${this.g} ${this.b} ${this.a}]`
-  };
-}
 
 function spaceNumberCheck(pixels){
   const ngList=[];
