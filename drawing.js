@@ -16,7 +16,7 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-when.innerText+="ver.0.0.7\n";
+when.innerText+="ver.0.0.8\n";
 class pixel{
   r;g;b;a;
   constructor(r=0,g=0,b=0,a=0){
@@ -228,7 +228,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         version.style.color="green";
       }
       else{
-        errorMessage.innerText+=`[ERROR]使用されているテンプレートが新春けもケット11のものではありません。または、右下の開催回番号枠内が汚れている可能性があります\n`
+        errorMessage.innerText+=`[ERROR]使用されているテンプレートが新春けもケット11のものではありません。または、右下の開催回番号枠内が汚れていたり、モノクロ二階調で出力されている可能性があります\n`
         version.innerText=`テンプレートバージョン: Unknown\n`
         version.style.color="red";
       }
