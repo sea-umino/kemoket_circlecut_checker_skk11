@@ -32,12 +32,12 @@ async function getTemps(){
 
   const results= await Promise.all(promises);
   for(let i=0;i<10;i++){
-    state.innerText+=`${results[i].length}\n`
+    state.innerText+=`${results[${i+1]}:results[i].length}\n`
   }
   str=results.join("");
   state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね...\n`;
   process=0;
-  test.innerText=str.length;
+  test.innerText+=`str.length=${str.length}`;
   str.split("#").map((pixel, id, arr)=>{
     test.innerText=`${p}`;
     const p=JSON.parse(pixel);
