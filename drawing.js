@@ -17,7 +17,7 @@ const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
 let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>undefined));
-when.innerText+="ver.0.0.1\n";
+when.innerText+="ver.0.0.2\n";
 class pixel{
   r;g;b;a;
   constructor(r,g,b,a){
@@ -40,10 +40,10 @@ async function getTemps(){
   state.innerText+=` ${process}%\n`;
   const promises=[];
   for(let i=1;i<=10;i++){
-    test.innerText+=`Require:template${i}.txt\n`
     promises.push(fetch(`template${i}.txt`).then(response=>response.text()).then(text=>{
       process+=10;
       state.innerText=`状態: データをダウンロード中。アップロードはちょっと待ってね... ${process}%\n`;
+      test.innerText+=`Complete: template${i}.txt\n`
       return text}));    
   };
 
