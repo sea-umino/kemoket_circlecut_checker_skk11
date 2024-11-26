@@ -15,8 +15,9 @@ const genre=document.getElementById('genre');
 const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
+const when=document.getElementById('when');
 let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>undefined));
-
+when.innerText+="ver.0.0.1";
 class pixel{
   r;g;b;a;
   constructor(r,g,b,a){
