@@ -34,7 +34,7 @@ async function getTemps(){
   str=results.join("");
   state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね...\n`;
   process=0;
-  test.innerText=str.slice(0, 100);
+  test.innerText=str.length;
   str.split("#").map((pixel, id, arr)=>{
     test.innerText=`${p}`;
     const p=JSON.parse(pixel);
