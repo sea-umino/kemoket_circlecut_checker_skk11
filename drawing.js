@@ -31,6 +31,9 @@ async function getTemps(){
   };
 
   const results= await Promise.all(promises);
+  for(let i=0;i<10;i++){
+    state.innerText+=`${results[i].length}\n`
+  }
   str=results.join("");
   state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね...\n`;
   process=0;
