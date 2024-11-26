@@ -16,7 +16,7 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-when.innerText+="ver.0.0.4\n";
+when.innerText+="ver.0.0.5\n";
 class pixel{
   r;g;b;a;
   constructor(r=0,g=0,b=0,a=0){
@@ -44,8 +44,8 @@ async function getTemps(){
     const ps=text.split("#");
     for(let j=0;j<ps.length;j++){
       p=JSON.parse(ps[j]);
-      test.innerText=`i=${i} j=${j} p=${p}`;
-      template[(correctHeight/10)*i + Math.min(j/correctWidth)][j%correctWidth]=new pixel(p.r,p.g,p.b,p.a);
+      test.innerText=`i=${i} j=${j} p=${JSON.stringify(p)}`;
+      template[(correctHeight/10)*i + Math.min(j/correctWidth)][j%correctWidth]=new pixel(r=p.r, g=p.g, b=p.b, a=p.a);
     }
     process+=10;
     state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%\n`;
