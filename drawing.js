@@ -16,7 +16,7 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-when.innerText+=" ver.0.0.10\n";
+when.innerText+=" ver.0.0.11\n";
 class pixel{
   r;g;b;a;
   constructor(r=0,g=0,b=0,a=0){
@@ -196,7 +196,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
       //配置希望ジャンル
       const {checked:genreChecked, sub:sub}=genreCheck(pixels);
       if(genreChecked.length==0){
-        errorMessage.innerText+=`[ERROR]"配置希望ジャンル欄のチェックがありません\n"`
+        errorMessage.innerText+=`[ERROR]"配置希望ジャンル"欄のチェックがありません\n`
         genre.innerText=`配置希望ジャンル: empty\n`;
         genre.style.color="red";
       }
