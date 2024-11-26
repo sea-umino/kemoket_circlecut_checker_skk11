@@ -237,7 +237,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
 
       test.innerHTML=`
         <b>◯その他のチェック項目</b><br><br>
-        ・"配置希望ジャンル"や"メインとする趣向"の欄のチェックは<span style="color:red;">塗りつぶし必須</span>>です。<b>レ点のチェックは不備になります</b><br><br>
+        ・"配置希望ジャンル"や"メインとする趣向"の欄のチェックは<b><span style="color:red;">塗りつぶし必須</span>></b>です。<b>レ点のチェックは不備になります</b><br><br>
         ・<b>サークル名</b>をサークルカットの右側の短冊に記入していますか？<br><br>
         ・アップロードされたサークルカットのファイル名は<span style="color: red;">"${file.name}"</span>です。サークルカットの名前は<span style="color:red;">『サークル名.jpg/png/bmp』</span>になっていますか？<br><br>
         ・「<b>ファイル名中のサークル名</b>」「<b>サークルの短冊に記載したサークル名</b>」「<b>申し込みフォームに入力するサークル名</b>」は<span style="color:red">原則完全一致している必要があります</span>。<b>日本語のサークル名をアルファベット表記に変換</b>していたり、<b>ひらがなとカタカナを間違えていたり</b>しませんか？　<b>漢字の字体（新字体or旧字体、異体字等）</b>は一致していますか？　ただし、<span style="color:red";>ファイル名に使用できない文字が含まれる場合</span>は、ファイル名に<b>ハイフン（-）</b>や<b>アンダーバー（_）</b>の使用、また<b>その文字の省略</b>が認められます。また、<span style="color:red">機種依存文字はサークル名に使用できません</span>。<br><br>
