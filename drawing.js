@@ -16,11 +16,11 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>undefined));
+let template=Array(canvas.height).fill().map(_=>Array(canvas.width).fill().map(_=>new pixel()));
 when.innerText+="ver.0.0.3\n";
 class pixel{
   r;g;b;a;
-  constructor(r,g,b,a){
+  constructor(r=0,g=0,b=0,a=0){
     this.r=r;
     this.g=g;
     this.b=b;
@@ -43,6 +43,7 @@ async function getTemps(){
     const ps=text.split("#");
     for(let j=0;j<ps.length;j++){
       p=JSON.parse(ps[j]);
+      test.innerText=`i=${i} j=${j} p=${p}`;
       template[(correctHeight/10)*i + Math.min(j/correctWidth)][j%correctWidth]=new pixel(p.r,p.g,p.b,p.a);
     }
     process+=10;
