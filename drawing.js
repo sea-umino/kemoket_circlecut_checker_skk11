@@ -2,6 +2,7 @@ const [correctWidth,correctHeight]=[3260,1370];
 
 const errorMessage=document.getElementById('error');
 const canvas = document.getElementById('canvas');
+//const dpr=window.devicePixelRatio || 1;
 canvas.width=correctWidth;
 canvas.height=correctHeight;
 const ctx = canvas.getContext('2d');
@@ -32,16 +33,16 @@ async function getTemps(){
 
   const results= await Promise.all(promises);
   for(let i=0;i<10;i++){
-    state.innerText+=`${results[${i+1]}:results[i].length}\n`
+    state.innerText+=`results[${i}]:${results[i].length}\n`
   }
   str=results.join("");
   state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね...\n`;
   process=0;
-  test.innerText+=`str.length=${str.length}`;
+  test.innerText+=`str.lenght=${str.length}\n`;
   str.split("#").map((pixel, id, arr)=>{
-    test.innerText=`${p}`;
+    test.innerText+=`${id}:${pixel} \n`;
     const p=JSON.parse(pixel);
-    test.innerText=`arr.length=${arr.length} id=${id} r=${p.r} g=${p.g} b=${p.b} a=${p.a}`;
+    test.innerText+=`arr.length=${arr.length} id=${id} r=${p.r} g=${p.g} b=${p.b} a=${p.a}`;
     template[Math.floor(id/canvas.width)][id%canvas.width]=new pixel(p.r,p.g,p.b,p.a);
     process=(id+1)/arr.length;
     state.innerText=`状態: ダウンロードしたデータを加工中。アップロードはちょっと待ってね... ${process.toFixed(2)}%\n`
@@ -222,6 +223,27 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         version.innerText=`テンプレートバージョン: Unknown\n`
         version.style.color="red";
       }
+
+      /*
+      ////以下、デバッグ用////
+      const test = document.getElementById('test');
+      const anal = {};
+      for(let h=0;h<canvas.height;h++){
+        for(let w=0;w<canvas.width;w++){
+          const pstr=JSON.stringify(pixels[h][w]);
+          if(pstr in anal){
+            anal[pstr]++;
+          }
+          else{
+            anal[pstr]=1;
+          }
+        }
+      }
+      const debug=(x,y)=>{
+        test.innerText+=`x=${x} y=${y} ${pixels[y][x].strParamater()}\n`
+      }
+        */
+      
     }
     //URLを介してimageオブジェクトにアップロードした画像を渡す
     image.src=reader.result;
