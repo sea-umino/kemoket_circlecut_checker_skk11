@@ -16,7 +16,7 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-when.innerText+=" ver.0.0.12\n";
+when.innerText+=" ver.0.0.13\n";
 class pixel{
   r;g;b;a;
   constructor(r=0,g=0,b=0,a=0){
@@ -66,13 +66,12 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
   state.innerText=`状態: 解析中。結果が出るまでちょっと待ってね...`
   const file = event.target.files[0];
   if(!file) return;
+
   //pngかどうか確認
-  /*
   if(!file.type.includes("png")){
-    errorMessage.textContent="[ERROR] アップロードされた画像がPNGではありません";
-    return;
+    errorMessage.innerText+="[CAUTION] アップロードされた画像がPNGではありません。このツールはPNGのみに対応しており、JPG/BMPは解析は行われますが高確率でエラーとなります。\n";
   }
-    */
+
   const reader = new FileReader()
   //FileReaderで読んだときに発火
   reader.onload=()=>{
@@ -80,6 +79,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
     const image = new Image();
     //画像が読み込まれた発火
     image.onload=()=>{
+      let errored=false;
       //画像サイズに関するチェック
       if(!imageSizeCheck(image)) return; //ここで不備があったらこの後の処理を全て飛ばして終了
 
@@ -108,6 +108,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
           errorMessage.innerText+="...";
         }
         errorMessage.innerText+="\n";
+        errored=true;
       }
 
       //スペースナンバー枠が汚れていないか
@@ -123,6 +124,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         errorMessage.innerText+="\n";
         spacenumber.innerText="スペースナンバー枠: 汚れあり\n";
         spacenumber.style.color="red";
+        errored=true;
       }
       else{
         spacenumber.innerText="スペースナンバー枠: OK\n";
@@ -138,10 +140,11 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         for(let i=0;i<Math.min(10, circlecutEdgeNgList.length);i++){
           errorMessage.innerText+=`[${circlecutEdgeNgList[i][1]}, ${circlecutEdgeNgList[i][0]}]`;
         }
-        if(circlecutEdgeNgList.lenth>10){
+        if(circlecutEdgeNgList.length>10){
           errorMessage.innerText+="...";
         }
         errorMessage.innerText+="\n";
+        errored=true;
       }
       else if(circlecutEdgeBimyouList.length>0){
         circlecutedge.style.color="orange";
@@ -154,6 +157,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
           errorMessage.innerText+="...";
         }
         errorMessage.innerText+="\n";
+        errored=true;
       }
       else{
         circlecutedge.innerText="サークルカット枠: OK\n";
@@ -166,6 +170,7 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         errorMessage.innerText+=`[ERROR]書き出し時にモノクロ二階調が指定されている可能性があります。サークルカットはRGBまたはグレースケールで出力してください\n`;
         colormode.innerText="カラーモード: モノクロ二階調\n";
         colormode.style.color="red";
+        errored=true;
       }
       else if(colorMode=="gray"){
         colormode.innerText="カラーモード: グレースケール\n";
@@ -182,11 +187,13 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         errorMessage.innerText+=`[ERROR]"メインとする趣向"欄のチェックがありません\n`
         seiheki.innerText=`メインとする趣向: empty\n`;
         seiheki.style.color="red";
+        errored=true;
       }
       else if(checked.length>1){
         errorMessage.innerText+=`[ERROR]"メインとする趣向"欄に複数のチェックが入っている可能性があります。複数のチェックをしていないか、または他のチェック欄に汚れが無いかを確認してください\n`
         seiheki.innerText=`メインとする趣向: ${checked.join(",")}\n`
         seiheki.style.color="red";
+        errored=true;
       }
       else{
         seiheki.innerText=`メインとする趣向: ${checked[0]}\n`;
@@ -199,22 +206,26 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         errorMessage.innerText+=`[ERROR]"配置希望ジャンル欄のチェックがありません\n"`
         genre.innerText=`配置希望ジャンル: empty\n`;
         genre.style.color="red";
+        errored=true;
       }
       else if(genreChecked.length>1){
         errorMessage.innerText+=`[ERROR]"配置希望ジャンル"欄に複数のチェックが入っている可能性があります。複数のチェックをしていないか、または他のチェック欄に汚れが無いかを確認してください\n`
         genre.innerText=`配置希望ジャンル: ${genreChecked.join(",")}\n`;
         genre.style.color="red";
+        errored=true;
       }
       else{
         if(genreChecked[0]=="その他版権" && !sub){
           errorMessage.innerText+=`[ERROR]"配置希望ジャンル"欄で"その他版権"を選択していますが、詳細が記載されていません\n`
           genre.innerText=`配置希望ジャンル: その他版権\n`
           genre.style.color="red";
+          errored=true;
         }
         else if(genreChecked[0]=="上記に該当しないジャンル" && !sub){
           errorMessage.innerText+=`[ERROR]"配置希望ジャンル"欄で"上記に該当しないジャンル"を選択していますが、詳細が記載されていません\n`
           genre.innerText=`配置希望ジャンル: 上記に該当しないジャンル\n`
           genre.style.color="red";
+          errored=true;
         }
         else{
           genre.innerText=`配置希望ジャンル: ${genreChecked[0]}\n`;
@@ -231,6 +242,12 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         errorMessage.innerText+=`[ERROR]使用されているテンプレートが新春けもケット11のものではありません。または、右下の開催回番号枠内が汚れていたり、モノクロ二階調で出力されている可能性があります\n`
         version.innerText=`テンプレートバージョン: Unknown\n`
         version.style.color="red";
+        errored=true;
+      }
+      //エラーが無ければ不備は検出されませんでしたというメッセージを表示
+      if(!errored){
+        errorMessage.innerText+="不備は検出されませんでした\n";
+        errorMessage.style.color="green";
       }
 
       state.innerText=`状態: 解析完了!\n`
