@@ -2,7 +2,6 @@ const [correctWidth,correctHeight]=[3260,1370];
 
 const errorMessage=document.getElementById('error');
 const canvas = document.getElementById('canvas');
-//const dpr=window.devicePixelRatio || 1;
 canvas.width=correctWidth;
 canvas.height=correctHeight;
 const ctx = canvas.getContext('2d');
@@ -16,7 +15,7 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-when.innerText+=" ver.0.0.13\n";
+when.innerText+=" ver.0.0.14\n";
 class pixel{
   r;g;b;a;
   constructor(r=0,g=0,b=0,a=0){
@@ -63,6 +62,7 @@ getTemps().then(()=>{
 
 document.getElementById('imageInput').addEventListener('change', async event=>{
   errorMessage.textContent='';
+  errorMessage.style.color="red";
   state.innerText=`状態: 解析中。結果が出るまでちょっと待ってね...`
   const file = event.target.files[0];
   if(!file) return;
@@ -261,27 +261,6 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         ・アップロードされたサークルカットのファイル名は<span style="color: red; font-weight:bold;">"${file.name}"</span>です。サークルカットの名前は<span style="color:red; font-weight:bold;">『サークル名.jpg/png/bmp』</span>になっていますか？<br><br>
         ・「<b>ファイル名中のサークル名</b>」「<b>サークルの短冊に記載したサークル名</b>」「<b>申し込みフォームに入力するサークル名</b>」は<span style="color:red; font-weight:bold;">原則完全一致している必要があります</span>。<b>日本語のサークル名をアルファベット表記に変換</b>していたり、<b>ひらがなとカタカナを間違えていたり</b>しませんか？　<b>漢字の字体（新字体or旧字体、異体字等）</b>は一致していますか？　ただし、<span style="color:red; font-weight:bold;">ファイル名に使用できない文字が含まれる場合</span>は、ファイル名に<b>ハイフン（-）</b>や<b>アンダーバー（_）</b>の使用、また<b>その文字の省略</b>が認められます。また、<span style="color:red; font-weight:bold;">機種依存文字はサークル名に使用できません</span>。<br><br>
       `
-
-      /*
-      ////以下、デバッグ用////
-      const test = document.getElementById('test');
-      const anal = {};
-      for(let h=0;h<canvas.height;h++){
-        for(let w=0;w<canvas.width;w++){
-          const pstr=JSON.stringify(pixels[h][w]);
-          if(pstr in anal){
-            anal[pstr]++;
-          }
-          else{
-            anal[pstr]=1;
-          }
-        }
-      }
-      const debug=(x,y)=>{
-        test.innerText+=`x=${x} y=${y} ${pixels[y][x].strParamater()}\n`
-      }
-        */
-      
     }
     //URLを介してimageオブジェクトにアップロードした画像を渡す
     image.src=reader.result;
@@ -395,20 +374,23 @@ function circlecutEdgeCheck(pixels){
 }
 
 function monochromeCheck(pixels){
-  let mode="";
-  const black= new pixel(0,0,0,255);
-  if(pixels[8][909].strParamater()==black.strParamater()){
-    mode="mono";
-  }
-  else{
-    const redPixel=pixels[296][2280];
-    if(redPixel.r>redPixel.g+150 && redPixel.r>redPixel.b+150){
-      mode="full";
+  let mode=""; //full,gray,mono
+  let[full, mono]=[false,true];
+  for(let h=0; h<canvas.height;h++){
+    for(let w=0;w<canvas.width;w++){
+      const p=pixels[h][w];
+      if((p.r!=0 && p.r!=255) || (p.g!=0 && p.g!=255) || (p.b!=0 && p.b!=255)){
+        mono=false;
+      }
+      if(!(p.r==p.g && p.r==p.b)){
+        full=true;
+      }
     }
-    else{
-      mode="gray";
-    }
   }
+  if(mono) mode="mono";
+  else if(full) mode="full";
+  else mode="gray";
+
   return mode;
 }
 
@@ -417,7 +399,7 @@ function seihekiCheck(pixels){
   const _white=new pixel(255,255,255,255);
   const white=_white.strParamater();
 
-  let [all,male,female,shota,lori,futa]=[false,false,false,false,false,false];
+  let [all,male,female,shota,loli,futa]=[false,false,false,false,false,false];
   for(let h=464;h<=495;h++){
     for(let w=971;w<=1002;w++){
       if(pixels[h][w].strParamater()!=white){
@@ -457,11 +439,11 @@ function seihekiCheck(pixels){
   for(let h=464;h<=495;h++){
     for(let w=2395;w<=2427;w++){
       if(pixels[h][w].strParamater()!=white){
-        lori=true;
+        loli=true;
       }
     }
   }
-  if(lori)checked.push("ロリ");
+  if(loli)checked.push("ロリ");
 
   for(let h=464;h<=495;h++){
     for(let w=2618;w<=2650;w++){
