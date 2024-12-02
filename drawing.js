@@ -15,7 +15,7 @@ const seiheki=document.getElementById('seiheki');
 const version=document.getElementById('version');
 const test=document.getElementById('test');
 const when=document.getElementById('when');
-when.innerText+=" ver.0.0.14\n";
+when.innerText+=" ver.0.0.15\n";
 class pixel{
   r;g;b;a;
   constructor(r=0,g=0,b=0,a=0){
@@ -29,36 +29,8 @@ class pixel{
   };
 }
 
+state.innerText=`状態: 準備完了! サークルカットをアップロードしてね!\n`;
 
-let template=[];
-let process=0;
-async function getTemps(){
-  state.innerText=`状態: 準備中。アップロードはちょっと待ってね...\n`;
-  state.innerText+=` ${process}%\n`;
-
-  for(let i=0;i<10;i++){
-    const response=await fetch(`template${i+1}.txt`);
-    const text=await response.text();
-    const ps=text.split("#");
-    let cnt=0;
-    for(let j=0;j<canvas.height/10;j++){
-      let tmp=[];
-      while(tmp.length<canvas.width){
-        const p=JSON.parse(ps[cnt]);
-        cnt++;
-        tmp.push(new pixel(p.r, p.g, p.b, p.a));
-      }
-      template.push(tmp);
-    }
-    process+=10;
-    state.innerText=`状態: 準備中。アップロードはちょっと待ってね... ${process}%\n`;
-  }
-  state.innerText=`状態: 準備中。読み込みは終わったよ。アップロードはちょっと待ってね...\n`
-}
-
-getTemps().then(()=>{
-  state.innerText=`状態: 準備完了! サークルカットをアップロードしてね!\n`;
-})
 
 document.getElementById('imageInput').addEventListener('change', async event=>{
   errorMessage.textContent='';
@@ -78,10 +50,13 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
     //画像クラス
     const image = new Image();
     //画像が読み込まれた発火
-    image.onload=()=>{
+    image.onload= async ()=>{
       let errored=false;
       //画像サイズに関するチェック
       if(!imageSizeCheck(image)) return; //ここで不備があったらこの後の処理を全て飛ばして終了
+
+      //エラー原因のピクセルをメモ
+      const errorPixels=[];
 
       //最初にcanvasをリセット
       ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -109,6 +84,9 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         }
         errorMessage.innerText+="\n";
         errored=true;
+        clear.map(pixel=>{
+          errorPixels.push([pixel[1], pixel[0]]);
+        })
       }
 
       //スペースナンバー枠が汚れていないか
@@ -125,6 +103,9 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         spacenumber.innerText="スペースナンバー枠: 汚れあり\n";
         spacenumber.style.color="red";
         errored=true;
+        spaceNumberNgList.map(pixel=>{
+          errorPixels.push([pixel[1], pixel[0]]);
+        });
       }
       else{
         spacenumber.innerText="スペースナンバー枠: OK\n";
@@ -145,6 +126,9 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         }
         errorMessage.innerText+="\n";
         errored=true;
+        circlecutEdgeNgList.map(pixel=>{
+          errorPixels.push([pixel[1], pixel[0]]);
+        })
       }
       else if(circlecutEdgeBimyouList.length>0){
         circlecutedge.style.color="orange";
@@ -158,6 +142,9 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         }
         errorMessage.innerText+="\n";
         errored=true;
+        circlecutEdgeBimyouList.map(pixel=>{
+          errorPixels.push([pixel[1], pixel[0]]);
+        })
       }
       else{
         circlecutedge.innerText="サークルカット枠: OK\n";
@@ -182,26 +169,58 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
       }
 
       //趣向チェック
-      const checked=seihekiCheck(pixels);
-      if(checked.length==0){
+      const {all, male, female, shota, loli, futa}=seihekiCheck(pixels);
+      const [seihekiChecked, seihekiHami,seihekiDis]=[[],[],[]];
+      [all, male, female, shota, loli, futa].map(seiheki=>{
+        if(seiheki.checked){
+          seihekiChecked.push(seiheki.text);
+          if(seiheki.dis>0){
+            seihekiDis.push(seiheki.text);
+          }
+        }
+        if(seiheki.hami){
+          seihekiHami.push(seiheki.text);
+        }
+      })
+      if(seihekiChecked.length==0){
         errorMessage.innerText+=`[ERROR]"メインとする趣向"欄のチェックがありません\n`
         seiheki.innerText=`メインとする趣向: empty\n`;
         seiheki.style.color="red";
         errored=true;
       }
-      else if(checked.length>1){
+      else if(seihekiChecked.length>1){
         errorMessage.innerText+=`[ERROR]"メインとする趣向"欄に複数のチェックが入っている可能性があります。複数のチェックをしていないか、または他のチェック欄に汚れが無いかを確認してください\n`
-        seiheki.innerText=`メインとする趣向: ${checked.join(",")}\n`
+        seiheki.innerText=`メインとする趣向: ${seihekiChecked.join(",")}\n`
         seiheki.style.color="red";
         errored=true;
       }
       else{
-        seiheki.innerText=`メインとする趣向: ${checked[0]}\n`;
+        seiheki.innerText=`メインとする趣向: ${seihekiChecked[0]}\n`;
         seiheki.style.color="green";
+        if(seihekiDis.length>0){
+          errorMessage.innerText+=`[ERROR]"メインとする趣向"欄の以下のチェックボックス内の塗りつぶしが不足している可能性があります\n項目:${seihekiDis.join(",")}\n`;
+          errored=true;
+        }
+      }
+      if(seihekiHami.length>0){
+        errorMessage.innerText+=`[ERROR]"メインとする趣向"欄の以下のチェックボックスの周囲に書き込みが認められます。汚れていたり、またはレ点でチェックしていないか確認してください\n項目: ${seihekiHami.join(",")}\n`;
+        errored=true;
       }
 
       //配置希望ジャンル
-      const {checked:genreChecked, sub:sub}=genreCheck(pixels);
+      const {animaloid,dragon,tetra,bird,pokemon,life,auth,stelse,sub}=genreCheck(pixels);
+      const [genreChecked,genreHami,genreDis]=[[],[],[]];
+      [animaloid, dragon, tetra, bird, pokemon, life, auth, stelse].map(genre=>{
+        if(genre.checked){
+          genreChecked.push(genre.text);
+          if(genre.dis>0){
+            genreDis.push(genre.text);
+          }
+        }
+        if(genre.hami){
+          genreHami.push(genre.text);
+        }
+      })
       if(genreChecked.length==0){
         errorMessage.innerText+=`[ERROR]"配置希望ジャンル欄のチェックがありません\n"`
         genre.innerText=`配置希望ジャンル: empty\n`;
@@ -215,13 +234,13 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         errored=true;
       }
       else{
-        if(genreChecked[0]=="その他版権" && !sub){
+        if(genreChecked[0]=="その他版権" && sub.includes("その他版権")){
           errorMessage.innerText+=`[ERROR]"配置希望ジャンル"欄で"その他版権"を選択していますが、詳細が記載されていません\n`
           genre.innerText=`配置希望ジャンル: その他版権\n`
           genre.style.color="red";
           errored=true;
         }
-        else if(genreChecked[0]=="上記に該当しないジャンル" && !sub){
+        else if(genreChecked[0]=="上記に該当しないジャンル" && sub.includes("上記に該当しないジャンル")){
           errorMessage.innerText+=`[ERROR]"配置希望ジャンル"欄で"上記に該当しないジャンル"を選択していますが、詳細が記載されていません\n`
           genre.innerText=`配置希望ジャンル: 上記に該当しないジャンル\n`
           genre.style.color="red";
@@ -230,24 +249,57 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
         else{
           genre.innerText=`配置希望ジャンル: ${genreChecked[0]}\n`;
           genre.style.color="green";
+          if(genreDis.length>0){
+            errorMessage.innerText+=`[ERROR]"配置希望ジャンル"欄の以下のチェックボックス内の塗りつぶしが不足している可能性があります\n項目:${genreDis.join(",")}\n`;
+            errored=true;
+          }
         }
+      }
+      if(genreHami.length>0){
+        errorMessage.innerText+=`[ERROR]"配置希望ジャンル"欄の以下のチェックボックスの周囲に書き込みが認められます。汚れていたり、またはレ点でチェックしていないか確認してください\n項目: ${genreHami.join(",")}\n`
+        errored=true;
       }
 
       //バージョンチェック
-      if(versionCheck(pixels)){
-        version.innerText=`テンプレートバージョン: 新春けもケット11\n`;
+      let vers = await versionCheck(ctx);
+      if(vers.includes("skk")){
+        vers = vers.replace("skk", "新春けもケット");
+      }
+      else if(vers.includes("kkk")){
+        vers = vers.replace("kkk", "関西けもケット");
+      }
+      else if(vers.includes("kk")){
+        vers = vers.replace("kk", "けもケット");
+      }
+      else{
+        vers="Unknown";
+      }
+
+      const correctName="新春けもケット11"
+
+      version.innerText=`テンプレートバージョン: ${vers}\n`;
+      if(vers==correctName){
         version.style.color="green";
       }
       else{
-        errorMessage.innerText+=`[ERROR]使用されているテンプレートが新春けもケット11のものではありません。または、右下の開催回番号枠内が汚れていたり、モノクロ二階調で出力されている可能性があります\n`
-        version.innerText=`テンプレートバージョン: Unknown\n`
+        errorMessage.innerText+=`[ERROR]使用されているテンプレートが新春けもケット11のものではありません。または、右下の開催回番号枠内が汚れている可能性があります\n`
         version.style.color="red";
         errored=true;
       }
-      //エラーが無ければ不備は検出されませんでしたというメッセージを表示
+     //エラーが無ければ不備は検出されませんでしたというメッセージを表示
       if(!errored){
-        errorMessage.innerText+="不備は検出されませんでした\n";
-        errorMessage.style.color="green";
+      errorMessage.innerText+="不備は検出されませんでした\n";
+      errorMessage.style.color="green";
+      }
+      //エラーが検出されてその原因ピクセルが特定されている場合、そこと周囲1ピクセルの範囲を赤で表示する
+      if(errorPixels.length>0){
+        ctx.globalAlpha=0.5;
+        ctx.fillStyle="red";
+        errorPixels.map(pixel=>{
+          let [x,y]=pixel;
+          ctx.fillRect(x-10, y-10, 21, 21);
+        })
+        ctx.globalAlpha=1.0;
       }
 
       state.innerText=`状態: 解析完了!\n`
@@ -268,6 +320,19 @@ document.getElementById('imageInput').addEventListener('change', async event=>{
   //アップロードされたファイルを読み取りURLをreader.resultに格納
   reader.readAsDataURL(file);
 })
+
+function imageSizeCheck(image){
+  imagesize.style.color='green';
+  imagesize.innerText=`画像サイズ: ${image.width}px × ${image.height}px\n`;
+  if(image.width!=correctWidth || image.height!=correctHeight){
+    errorMessage.textContent=`[ERROR] アップロードされた画像のサイズが間違っています。正しいサイズは ${correctWidth}px × ${correctHeight}px です`;
+    imagesize.style.color='red';
+    return false;
+  }
+  else {
+    return true;
+  }
+}
 
 function imageSizeCheck(image){
   imagesize.style.color='green';
@@ -395,149 +460,407 @@ function monochromeCheck(pixels){
 }
 
 function seihekiCheck(pixels){
-  const checked=[];
+
   const _white=new pixel(255,255,255,255);
   const white=_white.strParamater();
 
   let [all,male,female,shota,loli,futa]=[false,false,false,false,false,false];
+  let [allh,maleh,femaleh,shotah,lolih,futah]=[false,false,false,false,false,false];
+  let [alld,maled,femaled,shotad,lolid,futad]=[0,0,0,0,0,0];
+
+  //全年齢
   for(let h=464;h<=495;h++){
     for(let w=971;w<=1002;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        alld++;
+      }
+      if(p.strParamater()!=white){
         all=true;
       }
     }
   }
-  if(all)checked.push("全年齢向けメイン");
+  for(let w=964;w<=1009;w++){
+    if(pixels[457][w].strParamater()!=white){
+      allh=true;
+    }
+    if(pixels[502][w].strParamater()!=white){
+      allh=true;
+    }
+  }
+  for(let h=457;h<=502;h++){
+    if(pixels[h][964].strParamater()!=white){
+      allh=true;
+    }
+    if(pixels[h][1009].strParamater()!=white){
+      allh=true;
+    }
+  }
 
+  //オス
   for(let h=464;h<=495;h++){
     for(let w=1627;w<=1658;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        maled++;
+      }
+      if(p.strParamater()!=white){
         male=true;
       }
     }
   }
-  if(male)checked.push("オス");
+  for(let w=1620;w<=1665;w++){
+    if(pixels[457][w].strParamater()!=white){
+      maleh=true;
+    }
+    if(pixels[502][w].strParamater()!=white){
+      maleh=true;
+    }
+  }
+  for(let h=457;h<=502;h++){
+    if(pixels[h][1620].strParamater()!=white){
+      maleh=true;
+    }
+    if(pixels[h][1665].strParamater()!=white){
+      maleh=true;
+    }
+  }
   
+  //メス
   for(let h=464;h<=495;h++){
     for(let w=1877;w<=1908;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        femaled++;
+      }
+      if(p.strParamater()!=white){
         female=true;
       }
     }
   }
-  if(female)checked.push("メス");
+  for(let w=1870;w<=1915;w++){
+    if(pixels[456][w].strParamater()!=white){
+      femaleh=true;
+    }
+    if(pixels[502][w].strParamater()!=white){
+      femaleh=true;
+    }
+  }
+  for(let h=456;h<=502;h++){
+    if(pixels[h][1870].strParamater()!=white){
+      femaleh=true;
+    }
+    if(pixels[h][1915].strParamater()!=white){
+      femaleh=true;
+    }
+  }
 
+  //ショタ
   for(let h=464;h<=495;h++){
     for(let w=2119;w<=2150;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        shotad++;
+      }
+      if(p.strParamater()!=white){
         shota=true;
       }
     }
   }
-  if(shota)checked.push("ショタ");
+  for(let w=2112;w<=2157;w++){
+    if(pixels[457][w].strParamater()!=white){
+      shotah=true;
+    }
+    if(pixels[502][w].strParamater()!=white){
+      shotah=true;
+    }
+  }
+  for(let h=457;h<=502;h++){
+    if(pixels[h][2112].strParamater()!=white){
+      shotah=true;
+    }
+    if(pixels[h][2157].strParamater()!=white){
+      shotah=true;
+    }
+  }
 
+  //ロリ
   for(let h=464;h<=495;h++){
     for(let w=2395;w<=2427;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        lolid++;
+      }
+      if(p.strParamater()!=white){
         loli=true;
       }
     }
   }
-  if(loli)checked.push("ロリ");
+  for(let w=2388;w<=2434;w++){
+    if(pixels[457][w].strParamater()!=white){
+      lolih=true;
+    }
+    if(pixels[502][w].strParamater()!=white){
+      lolih=true;
+    }
+  }
+  for(let h=457;h<=502;h++){
+    if(pixels[h][2388].strParamater()!=white){
+      lolih=true;
+    }
+    if(pixels[h][2434].strParamater()!=white){
+      lolih=true;
+    }
+  }
 
+  //フタナリ
   for(let h=464;h<=495;h++){
     for(let w=2618;w<=2650;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        futad++;
+      }
+      if(p.strParamater()!=white){
         futa=true;
       }
     }
   }
-  if(futa)checked.push("フタナリ");
+  for(let w=2611;w<=2657;w++){
+    if(pixels[457][w].strParamater()!=white){
+      futah=true;
+    }
+    if(pixels[502][w].strParamater()!=white){
+      futah=true;
+    }
+  }
+  for(let h=456;h<=502;h++){
+    if(pixels[h][2611].strParamater()!=white){
+      futah=true;
+    }
+    if(pixels[h][2657].strParamater()!=white){
+      futah=true;
+    }
+  }
 
-  return checked;
+  return {
+    all:{checked:all, hami:allh, dis:alld, text:"全年齢向けメイン"},
+    male:{checked:male, hami:maleh, dis:maled, text:"オス"},
+    female:{checked:female, hami:femaleh, dis:femaled, text:"メス"},
+    shota:{checked:shota, hami:shotah, dis:shotad, text:"ショタ"},
+    loli:{checked:loli, hami:lolih, dis:lolid, text:"ロリ"},
+    futa:{checked:futa, hami:futah, dis:futad, text:"フタナリ"}
+  };
 }
 
 function genreCheck(pixels){
-  const checked=[];
-  let sub=false;
+  const sub=[];
   const _white=new pixel(255,255,255,255);
   const white=_white.strParamater();
   let [animaloid,dragon,tetra, bird,pokemon, life, auth, stelse]=[false,false,false,false,false,false,false,false];
+  let [animaloidh,dragonh,tetrah,birdh,pokemonh,lifeh,authh,stelseh]=[false,false,false,false,false,false,false,false];
+  let [animaloidd,dragond,tetrad,birdd,pokemond,lifed,authd,stelsed]=[0,0,0,0,0,0,0,0];
+  
+  //獣人
   for(let h=632;h<=664;h++){
     for(let w=971;w<=1003;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        animaloidd++;
+      }
+      if(p.strParamater()!=white){
         animaloid=true;
       }
     }
   }
-  if(animaloid){
-    checked.push("獣人");
+  for(let h=625;h<=670;h++){
+    if(pixels[h][964].strParamater()!=white){
+      animaloidh=true;
+    }
+    if(pixels[h][1009].strParamater()!=white){
+      animaloidh=true;
+    }
   }
+  for(let w=964;w<=1009;w++){
+    if(pixels[625][w].strParamater()!=white){
+      animaloidh=true;
+    }
+    if(pixels[670][w].strParamater()!=white){
+      animaloidh=true;
+    }
+  }
+  
 
+  //ドラゴン・爬虫類
   for(let h=632;h<=663;h++){
     for(let w=1232;w<=1265;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        dragond++;
+      }
+      if(p.strParamater()!=white){
         dragon=true;
       }
     }
   }
-  if(dragon){
-    checked.push("ドラゴン・爬虫類");
+  for(let h=625;h<=670;h++){
+    if(pixels[h][1226].strParamater()!=white){
+      dragonh=true;
+    }
+    if(pixels[h][1272].strParamater()!=white){
+      dragonh=true;
+    }
+  }
+  for(let w=1226;w<=1272;w++){
+    if(pixels[625][w].strParamater()!=white){
+      dragonh=true;
+    }
+    if(pixels[670][w].strParamater()!=white){
+      dragonh=true;
+    }
   }
   
+
+  //四足
   for(let h=632;h<=664;h++){
     for(let w=1792;w<=1824;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        tetrad++;
+      }
+      if(p.strParamater()!=white){
         tetra=true;
       }
     }
+  }for(let h=625;h<=670;h++){
+    if(pixels[h][1785].strParamater()!=white){
+      tetrah=true;
+    }
+    if(pixels[h][1831].strParamater()!=white){
+      tetrah=true;
+    }
   }
-  if(tetra){
-    checked.push("四足");
+  for(let w=1785;w<=1831;w++){
+    if(pixels[625][w].strParamater()!=white){
+      tetrah=true;
+    }
+    if(pixels[670][w].strParamater()!=white){
+      tetrah=true;
+    }
   }
 
+  //鳥類
   for(let h=632;h<=664;h++){
     for(let w=2055;w<=2086;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        birdd++;
+      }
+      if(p.strParamater()!=white){
         bird=true;
       }
     }
+  }for(let h=625;h<=670;h++){
+    if(pixels[h][2048].strParamater()!=white){
+      birdh=true;
+    }
+    if(pixels[h][2093].strParamater()!=white){
+      birdh=true;
+    }
   }
-  if(bird){
-    checked.push("鳥類");
+  for(let w=2048;w<=2093;w++){
+    if(pixels[625][w].strParamater()!=white){
+      birdh=true;
+    }
+    if(pixels[670][w].strParamater()!=white){
+      birdh=true;
+    }
   }
 
+  //ポケモン
   for(let h=632;h<=664;h++){
     for(let w=2317;w<=2349;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        pokemond++;
+      }
+      if(p.strParamater()!=white){
         pokemon=true;
       }
     }
+  }for(let h=625;h<=670;h++){
+    if(pixels[h][2310].strParamater()!=white){
+      pokemonh=true;
+    }
+    if(pixels[h][2356].strParamater()!=white){
+      pokemonh=true;
+    }
   }
-  if(pokemon){
-    checked.push("ポケモン");
+  for(let w=2310;w<=2356;w++){
+    if(pixels[625][w].strParamater()!=white){
+      pokemonh=true;
+    }
+    if(pixels[670][w].strParamater()!=white){
+      pokemonh=true;
+    }
   }
 
+  //ライフワンダーズ
   for(let h=632;h<=664;h++){
     for(let w=2670;w<=2702;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        lifed++;
+      }
+      if(p.strParamater()!=white){
         life=true;
       }
     }
+  }for(let h=625;h<=670;h++){
+    if(pixels[h][2663].strParamater()!=white){
+      lifeh=true;
+    }
+    if(pixels[h][2709].strParamater()!=white){
+      lifeh=true;
+    }
   }
-  if(life){
-    checked.push("ライフワンダーズ");
+  for(let w=2663;w<=2709;w++){
+    if(pixels[625][w].strParamater()!=white){
+      lifeh=true;
+    }
+    if(pixels[670][w].strParamater()!=white){
+      lifeh=true;
+    }
   }
 
+  //その他版権
   for(let h=715;h<=747;h++){
     for(let w=971;w<=1002;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        authd++;
+      }
+      if(p.strParamater()!=white){
         auth=true;
       }
     }
   }
+  for(let h=708;h<=754;h++){
+    if(pixels[h][964].strParamater()!=white){
+      authh=true;
+    }
+    if(pixels[h][1009].strParamater()!=white){
+      authh=true;
+    }
+  }
+  for(let w=964;w<=1009;w++){
+    if(pixels[708][w].strParamater()!=white){
+      authh=true;
+    }
+    if(pixels[754][w].strParamater()!=white){
+      authh=true;
+    }
+  }
   if(auth){
-    checked.push("その他版権");
     let cnt=0;
     for(let h=700;h<=753;h++){
       for(let w=1309;w<=2798;w++){
@@ -546,20 +869,40 @@ function genreCheck(pixels){
         }
       }
     }
-    if(cnt>=100){
-      sub=true;
+    if(cnt<100){
+      sub.push("その他版権");
     }
   }
 
+  //上記に該当しないジャンル
   for(let h=798;h<=830;h++){
     for(let w=971;w<=1002;w++){
-      if(pixels[h][w].strParamater()!=white){
+      const p=pixels[h][w];
+      if(p.r>128 || p.g>128 || p.b>128){
+        stelsed++;
+      }
+      if(p.strParamater()!=white){
         stelse=true;
       }
     }
   }
+  for(let h=791;h<=837;h++){
+    if(pixels[h][964].strParamater()!=white){
+      stelseh=true;
+    }
+    if(pixels[h][1009].strParamater()!=white){
+      stelseh=true;
+    }
+  }
+  for(let w=964;w<=1009;w++){
+    if(pixels[791][w].strParamater()!=white){
+      stelseh=true;
+    }
+    if(pixels[837][w].strParamater()!=white){
+      stelseh=true;
+    }
+  }
   if(stelse){
-    checked.push("上記に該当しないジャンル");
     let cnt=0;
     for(let h=777;h<=836;h++){
       for(let w=1648;w<=3129;w++){
@@ -568,12 +911,22 @@ function genreCheck(pixels){
         }
       }
     }
-    if(cnt>=100){
-      sub=true;
+    if(cnt<100){
+      sub.push("上記に該当しないジャンル");
     }
   }
 
-  return {checked:checked, sub:sub};
+  return {
+    animaloid:{checked:animaloid, hami:animaloidh, dis:animaloidd, text:"獣人"},
+    dragon:{checked:dragon, hami:dragonh, dis:dragond, text:"ドラゴン・爬虫類"},
+    tetra:{checked:tetra, hami:tetrah, dis:tetrad, text:"四足"},
+    bird:{checked:bird, hami:birdh, dis:birdd, text:"鳥類"},
+    pokemon:{checked:pokemon, hami:pokemonh, dis:pokemond, text:"ポケモン"},
+    life:{checked:life, hami:lifeh, dis:lifed, text:"ライフワンダーズ"},
+    auth:{checked:auth, hami:authh, dis:authd, text:"その他版権"},
+    stelse:{checked:stelse, hami:stelseh, dis:stelsed, text:"上記に該当しないジャンル"},
+    sub:sub
+  };
 }
 
 function clearPixelCheck(pixels){
@@ -588,16 +941,16 @@ function clearPixelCheck(pixels){
   return clear;
 }
 
-function versionCheck(pixels){
-  let cnt=0;
-  const _white=new pixel(255,255,255,255);
-  const white=_white.strParamater();
-  for(let h=1288;h<=1354;h++){
-    for(let w=3023;w<=3245;w++){
-      if((pixels[h][w].strParamater()==white) ^ (template[h][w].strParamater()==white)){
-        cnt++;
-      }
-    }
-  }
-  return cnt<=20;
+async function versionCheck(ctx){
+  const [hmin,hmax,wmin, wmax]=[1293, 1350, 3027, 3240];
+  const [h, w]=[hmax-hmin+1, wmax-wmin+1];
+  const worker= await Tesseract.createWorker(['eng']);
+  const result = await worker.recognize(ctx.canvas, {rectangle:{
+    top: hmin,
+    left: wmin,
+    height:h,
+    width:w
+  }});
+  const version=result.data.text.replace(" ", "").replace("\n", "");
+  return version;
 }
